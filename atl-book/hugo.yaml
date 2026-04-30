@@ -33,6 +33,6 @@ menu:
 
 params:
   # Display the last modification date
-  displayUpdatedDate: true
+  displayUpdatedDate: false # it's broken
   dateFormat: "May 1, 2006"
   enableGitInfo: true
