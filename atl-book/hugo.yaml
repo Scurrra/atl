@@ -1,0 +1,38 @@
+baseURL: https://scurrra.github.io/atl/
+locale: en-us
+title: Abnormal Template Library
+
+module:
+  imports:
+    - path: github.com/imfing/hextra
+
+security:
+  http:
+    urls:
+      - '^https?://cdn\.jsdelivr\.net/.*'
+      - "^https?://[a-z]"
+      - "! (?i)localhost"
+
+menu:
+  main:
+    - name: Book
+      pageRef: /book
+      weight: 1
+    - name: Documentation
+      pageRef: /docs
+      weight: 2
+    - name: Search
+      weight: 3
+      params:
+        type: search
+    - name: GitHub
+      weight: 4
+      url: "https://github.com/Scurrra/atl"
+      params:
+        icon: github
+
+params:
+  # Display the last modification date
+  displayUpdatedDate: true
+  dateFormat: "May 1, 2006"
+  enableGitInfo: true
