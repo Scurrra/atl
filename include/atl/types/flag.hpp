@@ -1,8 +1,8 @@
 #ifndef ATL_TYPES_FLAGS_HPP
 #define ATL_TYPES_FLAGS_HPP
 
-#include <concepts>
-#include <type_traits>
+#include <concepts>  // std::convertible_to
+#include <type_traits>  // std::is_enum_v, std::underlying_type_t, std::is_base_of_v, std::decay_t
 
 namespace abl {
 
@@ -77,7 +77,8 @@ class enum_wrapper {
                    .value_ != 0;
     }
 
-    /// @brief Check including of an instance of a type derived from this wrapper.
+    /// @brief Check including of an instance of a type derived from this
+    /// wrapper.
     template <typename T>
         requires std::is_base_of_v<enum_wrapper<Enum>, std::decay_t<T>>
     constexpr bool has(const T& flag) const {
@@ -118,4 +119,4 @@ class flag : public enum_wrapper<E> {
 
 }  // namespace abl
 
-#endif // ATL_TYPES_FLAGS_HPP
+#endif  // ATL_TYPES_FLAGS_HPP
