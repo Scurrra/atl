@@ -36,3 +36,12 @@ params:
   displayUpdatedDate: false # it's broken
   dateFormat: "May 1, 2006"
   enableGitInfo: true
+
+markup:
+  goldmark:
+    extensions:
+      passthrough:
+        delimiters:
+          block: [['\[', '\]'], ["$$", "$$"]]
+          inline: [['\(', '\)'], ["$", "$"]]
+        enable: true
