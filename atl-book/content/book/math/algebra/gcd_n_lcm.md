@@ -10,6 +10,8 @@ I think it's the first complex concept everyone was introduced to at school: GCD
 > [!NOTE]
 > This stands for negative integers, too: greatest divisor is always positive, so it's more convenient to just compute absolute values before performing the algorithm.
 
+GCD and LCM are associative functions, what means that $$\gcd(a, b, c) = \gcd(\gcd(a, b), c),$$ $$lcm(a, b, c) = lcm(lcm(a, b), c),$$ 
+
 ## Algorithm
 
 > **_Original_**: Subtract the smaller number from the larger until one of them becomes zero. The non-zero one is the GCD of these numbers.
@@ -107,21 +109,31 @@ As the algorithm should be computed on unsigned integers, the version with signe
 >
 > When converting signed to unsigned we should not forget about the case when the value equals to `std::numeric_limits<common_t>::min()`. In this corner case the value is simply converted, while other negative values should be negotiated. This conversion is guaranteed by two's compliment representation of signed integer types.
 
+> [!WARNING]
+> The implementation is biased: LCM of two negative integers is a negative.
+
 ```cpp
+// std::countr_zero
 #include <bit>
+// std::integral, std::is_signed, std::is_unsigned
+#include <concepts>
+// std::numeric_limits
 #include <limits>
+// std::common_type, std::make_unsigned, 
+// std::is_convertible (std::is_nothrow_convertible)
 #include <type_traits>
-#include <utility>
 
 namespace abl {
 
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_nothrow_convertible_v<U, std::common_type_t<T, U>> &&
+             std::is_convertible_v<T, std::common_type_t<T, U>> &&
+             std::is_convertible_v<U, std::common_type_t<T, U>> &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_signed_v<std::common_type_t<T, U>>
-constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept {
+constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept(
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     using common_ut = std::make_unsigned_t<common_t>;
 
@@ -151,11 +163,13 @@ constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept {
 
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_nothrow_convertible_v<U, std::common_type_t<T, U>> &&
+             std::is_convertible_v<T, std::common_type_t<T, U>> &&
+             std::is_convertible_v<U, std::common_type_t<T, U>> &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_unsigned_v<std::common_type_t<T, U>>
-constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept {
+constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept(
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_ut = std::common_type_t<T, U>;
 
     auto acu = static_cast<common_ut>(a), bcu = static_cast<common_ut>(b);
@@ -173,12 +187,22 @@ constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept {
     return acu;
 }
 
+template <typename T1, typename T2, typename T3, typename... Ts>
+    requires requires(const T1& a, const T2& b) { gcd(a, b); }
+constexpr std::common_type_t<T1, T2, T3, Ts...> gcd(const T1& a, const T2& b,
+                                                    const T3& c,
+                                                    const Ts&... rest) {
+    return gcd(gcd(a, b), c, rest...);
+}
+
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_nothrow_convertible_v<U, std::common_type_t<T, U>> &&
-             std::integral<std::common_type_t<T, U>>
-constexpr std::common_type_t<T, U> lcm(const T& a, const U& b) noexcept {
+             std::is_convertible_v<T, std::common_type_t<T, U>> &&
+             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             requires(const T& a, const T& b) { gcd(a, b); }
+constexpr std::common_type_t<T, U> lcm(const T& a, const U& b) noexcept(
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     if (a == 0 || b == 0) return 0;
     auto d = gcd(a, b);
     if constexpr (std::is_signed_v<decltype(d)>) {
@@ -189,8 +213,21 @@ constexpr std::common_type_t<T, U> lcm(const T& a, const U& b) noexcept {
     return (static_cast<decltype(d)>(a) / d) * static_cast<decltype(d)>(b);
 }
 
+template <typename T1, typename T2, typename T3, typename... Ts>
+    requires requires(const T1& a, const T2& b) { lcm(a, b); }
+constexpr std::common_type_t<T1, T2, T3, Ts...> lcm(const T1& a, const T2& b,
+                                                    const T3& c,
+                                                    const Ts&... rest) {
+    return lcm(lcm(a, b), c, rest...);
+}
+
 }  // namespace abl
 ```
+
+{{< cards >}}
+  {{< card link="https://scurra.github.io/atl/docs/numeric/gcd/" title="Docs" icon="globe" >}}
+  {{< card link="https://godbolt.org/z/E1TPKPq41" title="Godbolt example" icon="globe" >}}
+{{< /cards >}}
 
 ## Resources
 
