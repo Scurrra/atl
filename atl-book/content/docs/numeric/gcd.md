@@ -1,7 +1,6 @@
 ---
 title: "GCD, LCM, and Extended GCD"
 weight: 1
-draft: true
 ---
 
 > Greatest Common Divisor and Least Common Multiple.
