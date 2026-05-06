@@ -6,7 +6,7 @@ weight: 1
 > Greatest Common Divisor and Least Common Multiple.
 
 > [!CAUTION]
-> Imports `<bit>`, `<concepts>`, `<limits>`, and `<type_traits>`.
+> Imports `<bit>`, `<concepts>`, `<limits>`, `<type_traits>`, `<stdexcept>`, and `<utility>`. For now, also `<tuple>` and `<vector>`.
 
 > [!TIP]
 > To import use `#include "atl/numeric/gcd.hpp"`.
@@ -25,6 +25,7 @@ Both `abl::gcd` and `abl::lcm` take at least two arguments.
 ```cpp
 abl::gcd(a, b) // computes gcd(a, b)
 abl::gcd(a, b, c) // computes gcd(gcd(a, b), c)
+abl::gcd({a, b, c}) // computes gcd(gcd(a, b), c) iteratively
 // and so on
 ```
 
@@ -34,17 +35,38 @@ abl::gcd(a, b, c) // computes gcd(gcd(a, b), c)
 ```cpp
 abl::lcm(a, b) // computes lcm(a, b)
 abl::lcm(a, b, c) // computes lcm(gcd(a, b), c)
+abl::lcm({a, b, c}) // computes lcm(gcd(a, b), c) iteratively
 // and so on
 ```
 
 {{< cards >}}
   {{< card link="https://scurra.github.io/atl/book/math/algebra/gcd_n_lcm/" title="Book article" icon="library" >}}
-  {{< card link="https://godbolt.org/z/E1TPKPq41" title="Godbolt example" icon="globe" >}}
+  {{< card link="https://godbolt.org/z/T1z59WPKK" title="Godbolt example" icon="globe" >}}
 {{< /cards >}}
 
+## `abl::gcdx`
 
+> Computes the greatest common divisor and the Bézout coefficients of a list of signed integers.
+
+> [!NOTE]
+> Functions are `constexpr` and conditionally `noexcept` (throw on failed type conversion).
+
+### Usage
+
+`abl::gcdx` takes two or more integer arguments. When called with two arguments, returns Bézout coefficients as `std::tuple`, otherwise as `std::vector`.
+
+```cpp
+abl::gcdx(a, b);
+abl::gcdx(a, b, c);
+abl::gcdx({a, b, c});
+```
+
+{{< cards >}}
+  {{< card link="https://scurra.github.io/atl/book/math/algebra/gcdx/" title="Book article" icon="library" >}}
+  {{< card link="https://godbolt.org/z/G89bx1ErM" title="Godbolt example" icon="globe" >}}
+{{< /cards >}}
 
 {{< cards >}}
   {{< card link="https://github.com/Scurrra/atl/blob/master/include/atl/numeric/gcd.hpp" title="Code" icon="github" >}}
-  {{< card link="https://godbolt.org/z/E1TPKPq41" title="Godbolt example" icon="globe" >}}
+  {{< card link="https://godbolt.org/z/5r3x3rP7b" title="Godbolt full example" icon="globe" >}}
 {{< /cards >}}
