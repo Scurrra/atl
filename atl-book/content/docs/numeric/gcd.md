@@ -40,7 +40,7 @@ abl::lcm({a, b, c}) // computes lcm(gcd(a, b), c) iteratively
 ```
 
 {{< cards >}}
-  {{< card link="https://scurra.github.io/atl/book/math/algebra/gcd_n_lcm/" title="Book article" icon="library" >}}
+  {{< card link="https://scurrra.github.io/atl/book/math/algebra/gcd_n_lcm/" title="Book article" icon="library" >}}
   {{< card link="https://godbolt.org/z/T1z59WPKK" title="Godbolt example" icon="globe" >}}
 {{< /cards >}}
 
@@ -62,7 +62,7 @@ auto [d3, coeffs3] = abl::gcdx({a, b, c});
 ```
 
 {{< cards >}}
-  {{< card link="https://scurra.github.io/atl/book/math/algebra/gcdx/" title="Book article" icon="library" >}}
+  {{< card link="https://scurrra.github.io/atl/book/math/algebra/gcdx/" title="Book article" icon="library" >}}
   {{< card link="https://godbolt.org/z/G89bx1ErM" title="Godbolt example" icon="globe" >}}
 {{< /cards >}}
 
