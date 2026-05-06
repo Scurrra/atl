@@ -119,6 +119,8 @@ As the algorithm should be computed on unsigned integers, the version with signe
 #include <concepts>
 // std::numeric_limits
 #include <limits>
+// std::invalid_argument
+#include <stdexcept>  
 // std::common_type, std::make_unsigned, 
 // std::is_convertible (std::is_nothrow_convertible)
 #include <type_traits>
@@ -195,6 +197,19 @@ constexpr std::common_type_t<T1, T2, T3, Ts...> gcd(const T1& a, const T2& b,
     return gcd(gcd(a, b), c, rest...);
 }
 
+template <typename T>
+    requires std::integral<T>
+constexpr T gcd(std::initializer_list<T> numbers) {
+    if (numbers.size() < 2)
+        throw std::invalid_argument(
+            "abl::gcd takes at least two integer argumnets");
+
+    std::vector<T> nums = numbers;
+    T result = gcd(nums[0], nums[1]);
+    for (std::size_t i = 2; i < nums.size(); result = gcd(result, nums[i++]));
+    return result;
+}
+
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
              std::is_convertible_v<T, std::common_type_t<T, U>> &&
@@ -221,12 +236,25 @@ constexpr std::common_type_t<T1, T2, T3, Ts...> lcm(const T1& a, const T2& b,
     return lcm(lcm(a, b), c, rest...);
 }
 
+template <typename T>
+    requires std::integral<T>
+constexpr T lcm(std::initializer_list<T> numbers) {
+    if (numbers.size() < 2)
+        throw std::invalid_argument(
+            "abl::lcm takes at least two integer argumnets");
+
+    std::vector<T> nums = numbers;
+    T result = lcm(nums[0], nums[1]);
+    for (std::size_t i = 2; i < nums.size(); result = lcm(result, nums[i++]));
+    return result;
+}
+
 }  // namespace abl
 ```
 
 {{< cards >}}
   {{< card link="https://scurra.github.io/atl/docs/numeric/gcd/" title="Docs" icon="globe" >}}
-  {{< card link="https://godbolt.org/z/E1TPKPq41" title="Godbolt example" icon="globe" >}}
+  {{< card link="https://godbolt.org/z/T1z59WPKK" title="Godbolt example" icon="globe" >}}
 {{< /cards >}}
 
 ## Resources
