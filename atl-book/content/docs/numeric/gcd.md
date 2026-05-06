@@ -56,9 +56,9 @@ abl::lcm({a, b, c}) // computes lcm(gcd(a, b), c) iteratively
 `abl::gcdx` takes two or more integer arguments. When called with two arguments, returns Bézout coefficients as `std::tuple`, otherwise as `std::vector`.
 
 ```cpp
-abl::gcdx(a, b);
-abl::gcdx(a, b, c);
-abl::gcdx({a, b, c});
+auto [d1, coeffs1] = abl::gcdx(a, b);
+auto [d2, coeffs2] = abl::gcdx(a, b, c);
+auto [d3, coeffs3] = abl::gcdx({a, b, c});
 ```
 
 {{< cards >}}
