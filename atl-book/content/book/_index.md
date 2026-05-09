@@ -11,7 +11,7 @@ cascade:
 - [ ] Math
   - [ ] Algebra
     - [x] GCD and LCM
-    - [ ] Extended GCD
+    - [x] Extended GCD
     - [ ] Prime Numbers
     - [ ] Modular Arithmetics
     - [ ] Linear Algebra
