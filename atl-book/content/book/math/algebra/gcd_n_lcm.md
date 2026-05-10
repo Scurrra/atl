@@ -129,12 +129,12 @@ namespace abl {
 
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_signed_v<std::common_type_t<T, U>>
 constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     using common_ut = std::make_unsigned_t<common_t>;
@@ -165,12 +165,12 @@ constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept(
 
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_unsigned_v<std::common_type_t<T, U>>
 constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_ut = std::common_type_t<T, U>;
 
@@ -212,11 +212,11 @@ constexpr T gcd(std::initializer_list<T> numbers) {
 
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              requires(const T& a, const T& b) { gcd(a, b); }
 constexpr std::common_type_t<T, U> lcm(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     if (a == 0 || b == 0) return 0;
     auto d = gcd(a, b);

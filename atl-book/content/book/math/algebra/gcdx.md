@@ -161,15 +161,15 @@ namespace abl {
 
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_signed_v<std::common_type_t<T, U>>
 constexpr std::pair<
     std::common_type_t<T, U>,
     std::tuple<std::common_type_t<T, U>, std::common_type_t<T, U>>>
 gcdx(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     using common_ut = std::make_unsigned_t<common_t>;
@@ -202,15 +202,15 @@ gcdx(const T& a, const U& b) noexcept(
 
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_unsigned_v<std::common_type_t<T, U>>
 constexpr std::pair<std::common_type_t<T, U>,
                     std::tuple<std::make_signed_t<std::common_type_t<T, U>>,
                                std::make_signed_t<std::common_type_t<T, U>>>>
 gcdx(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_ut = std::common_type_t<T, U>;
     using common_t = std::make_signed_t<common_ut>;
