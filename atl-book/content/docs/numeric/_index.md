@@ -1,6 +1,6 @@
 ---
 title: "Numeric"
-weight: 2
+weight: 3
 ---
 
 > `#include "atl/numeric.hpp"` includes all the numeric algorithms (nothing but numbers) defined in the ATL. 

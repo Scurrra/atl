@@ -1,6 +1,6 @@
 ---
 title: "Types"
-weight: 1
+weight: 2
 ---
 
 > `#include "atl/types.hpp"` includes all the useful small types defined in the ATL. 
