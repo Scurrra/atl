@@ -1,7 +1,6 @@
 ---
 title: "Extrema"
 weight: 2
-draft: true
 ---
 
 > Min/max functions that can compare values of different types.

@@ -1,7 +1,6 @@
 ---
 title: "Comparator"
 weight: 1
-draft: true
 ---
 
 > In C++ tradition, the comparison condition is a predicate (a function that takes two arguments and returns `true` or `false` as a result of their comparison; satisfies the `std::predicate` concept), while in Python you may have seen that `sort` uses a key function to compare elements. I decided to mix these two approaches and create a `abl::comparator` struct that can be used to compare elements by both key and predicate at the same time. Anyway, this still satisfies the `std::predicate` concept as it is called with two arguments.
