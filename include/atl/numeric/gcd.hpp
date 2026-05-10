@@ -21,12 +21,12 @@ namespace abl {
 /// `std::common_type_t<T, U>`.
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_signed_v<std::common_type_t<T, U>>
 constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     using common_ut = std::make_unsigned_t<common_t>;
@@ -64,12 +64,12 @@ constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept(
 /// `std::common_type_t<T, U>`.
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_unsigned_v<std::common_type_t<T, U>>
 constexpr std::common_type_t<T, U> gcd(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_ut = std::common_type_t<T, U>;
 
@@ -133,11 +133,11 @@ constexpr T gcd(std::initializer_list<T> numbers) {
 /// @note LCM of two negative integers is negative.
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              requires(const T& a, const T& b) { gcd(a, b); }
 constexpr std::common_type_t<T, U> lcm(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     if (a == 0 || b == 0) return 0;
     auto d = gcd(a, b);
@@ -194,15 +194,15 @@ constexpr T lcm(std::initializer_list<T> numbers) {
 /// `std::common_type_t<T, U>`.
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_signed_v<std::common_type_t<T, U>>
 constexpr std::pair<
     std::common_type_t<T, U>,
     std::tuple<std::common_type_t<T, U>, std::common_type_t<T, U>>>
 gcdx(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     using common_ut = std::make_unsigned_t<common_t>;
@@ -243,15 +243,15 @@ gcdx(const T& a, const U& b) noexcept(
 /// `std::common_type_t<T, U>`.
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::integral<std::common_type_t<T, U>> &&
              std::is_unsigned_v<std::common_type_t<T, U>>
 constexpr std::pair<std::common_type_t<T, U>,
                     std::tuple<std::make_signed_t<std::common_type_t<T, U>>,
                                std::make_signed_t<std::common_type_t<T, U>>>>
 gcdx(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_ut = std::common_type_t<T, U>;
     using common_t = std::make_signed_t<common_ut>;
@@ -272,10 +272,13 @@ gcdx(const T& a, const U& b) noexcept(
     return {r0, {s0, t0}};
 }
 
-/// @brief Computes the greatest common divisor and the Bézout coefficients of a list of signed integers.
+/// @brief Computes the greatest common divisor and the Bézout coefficients of a
+/// list of signed integers.
 /// @param numbers The list of integers.
-/// @return A pair containing the greatest common divisor and the Bézout coefficients as `std::vector<T>`.
-/// @note Throws an exception if the result cannot be converted to `std::common_type_t<T, U>`.
+/// @return A pair containing the greatest common divisor and the Bézout
+/// coefficients as `std::vector<T>`.
+/// @note Throws an exception if the result cannot be converted to
+/// `std::common_type_t<T, U>`.
 template <typename T>
     requires std::integral<T> && std::is_signed_v<T>
 constexpr std::pair<T, std::vector<T>> gcdx(std::initializer_list<T> numbers) {
@@ -300,10 +303,13 @@ constexpr std::pair<T, std::vector<T>> gcdx(std::initializer_list<T> numbers) {
     return {d, coeffs_vec};
 }
 
-/// @brief Computes the greatest common divisor and the Bézout coefficients of a list of signed integers.
+/// @brief Computes the greatest common divisor and the Bézout coefficients of a
+/// list of signed integers.
 /// @param numbers The list of integers.
-/// @return A pair containing the greatest common divisor and the Bézout coefficients as `std::vector<T>`.
-/// @note Throws an exception if the result cannot be converted to `std::common_type_t<T, U>`.
+/// @return A pair containing the greatest common divisor and the Bézout
+/// coefficients as `std::vector<T>`.
+/// @note Throws an exception if the result cannot be converted to
+/// `std::common_type_t<T, U>`.
 template <typename... Ts>
     requires(sizeof...(Ts) > 2) &&
             (std::is_convertible_v<Ts, std::common_type_t<Ts...>> && ...) &&

@@ -33,10 +33,10 @@ constexpr const T& min(const T& a, const T& b, Compare comp) {
 /// @return The minimum of `a` and `b` as a value of their common type.
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>>
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>)
 std::common_type_t<T, U> min(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     auto ca = static_cast<common_t>(a), cb = static_cast<common_t>(b);
@@ -50,12 +50,12 @@ std::common_type_t<T, U> min(const T& a, const U& b) noexcept(
 /// @return The minimum of `a` and `b` as a value of their common type.
 template <typename Compare, typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::predicate<const Compare&, const std::common_type_t<T, U>&,
                             const std::common_type_t<T, U>&>
 std::common_type_t<T, U> min(const T& a, const U& b, Compare comp) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     auto ca = static_cast<common_t>(a), cb = static_cast<common_t>(b);
@@ -88,10 +88,10 @@ constexpr const T& max(const T& a, const T& b, Compare comp) {
 /// @return The maximum of `a` and `b` as a value of their common type.
 template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>>
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>)
 std::common_type_t<T, U> max(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     auto ca = static_cast<common_t>(a), cb = static_cast<common_t>(b);
@@ -105,12 +105,12 @@ std::common_type_t<T, U> max(const T& a, const U& b) noexcept(
 /// @return The maximum of `a` and `b` as a value of their common type.
 template <typename Compare, typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::predicate<const Compare&, const std::common_type_t<T, U>&,
                             const std::common_type_t<T, U>&>
 std::common_type_t<T, U> max(const T& a, const U& b, Compare comp) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     auto ca = static_cast<common_t>(a), cb = static_cast<common_t>(b);
@@ -142,20 +142,18 @@ constexpr std::pair<T, T> minmax(const T& a, const T& b, Compare comp) {
     return {b, a};
 }
 
-/// @brief Returns the minimum and maximum of two values using a custom
-/// comparison function.
+/// @brief Returns the minimum and maximum of two values.
 /// @param a The first value.
 /// @param b The second value.
-/// @param comp The comparison function.
 /// @return A pair containing the minimum and maximum of `a` and `b`, where both
 /// values are of their common type.
-template <typename Compare, typename T, typename U>
+template <typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>>
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>)
 std::pair<std::common_type_t<T, U>, std::common_type_t<T, U>>
 minmax(const T& a, const U& b) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     auto ca = static_cast<common_t>(a), cb = static_cast<common_t>(b);
@@ -172,13 +170,13 @@ minmax(const T& a, const U& b) noexcept(
 /// values are of their common type.
 template <typename Compare, typename T, typename U>
     requires requires { typename std::common_type_t<T, U>; } &&
-             std::is_convertible_v<T, std::common_type_t<T, U>> &&
-             std::is_convertible_v<U, std::common_type_t<T, U>> &&
+             (std::is_convertible_v<T, std::common_type_t<T, U>> ||
+              std::is_convertible_v<U, std::common_type_t<T, U>>) &&
              std::predicate<const Compare&, const std::common_type_t<T, U>&,
                             const std::common_type_t<T, U>&>
 std::pair<std::common_type_t<T, U>, std::common_type_t<T, U>>
 minmax(const T& a, const U& b, Compare comp) noexcept(
-    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> &&
+    std::is_nothrow_convertible_v<T, std::common_type_t<T, U>> ||
     std::is_nothrow_convertible_v<U, std::common_type_t<T, U>>) {
     using common_t = std::common_type_t<T, U>;
     auto ca = static_cast<common_t>(a), cb = static_cast<common_t>(b);
