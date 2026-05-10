@@ -271,7 +271,7 @@ gcdx(Ts&&... numbers) noexcept(
 
 {{< cards >}}
 {{< card link="https://scurrra.github.io/atl/docs/numeric/gcd/" title="Docs" icon="globe" >}}
-{{< card link="https://godbolt.org/z/G89bx1ErM" title="Godbolt example" icon="globe" >}}
+{{< card link="https://godbolt.org/z/ehWzTes96" title="Godbolt example" icon="globe" >}}
 {{< /cards >}}
 
 ## Resources
