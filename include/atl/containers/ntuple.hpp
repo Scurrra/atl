@@ -12,6 +12,57 @@ namespace abl {
 /// `T`.
 template <std::size_t N, typename T>
 struct ntuple {
+   private:
+    /// @brief The `leaf` struct holds a single element of type `T`.
+    /// @tparam I The index of the element in the `ntuple`.
+    template <std::size_t I>
+    struct leaf {
+        [[no_unique_address]] T value;
+
+        template <typename U>
+            requires std::constructible_from<T, U>
+        constexpr leaf(U&& u) : value(std::forward<U>(u)) {}
+
+        constexpr leaf() = default;
+
+        constexpr leaf(const leaf&) = default;
+        constexpr leaf(leaf&&) noexcept(
+            std::is_nothrow_move_constructible_v<T>) = default;
+        constexpr leaf& operator=(const leaf&) = default;
+        constexpr leaf& operator=(leaf&&) noexcept(
+            std::is_nothrow_move_assignable_v<T>) = default;
+    };
+
+    /// @brief The `inner` struct holds a sequence of `leaf` elements.
+    /// @tparam Seq A `std::index_sequence` type used to generate the `leaf`
+    /// elements.
+    /// @note Inheritance from `leaf` for each element makes it basically a
+    /// struct where each field can be accessed via casting to `leaf` and
+    /// accessing `value`.
+    template <typename Seq>
+    struct inner;
+    template <std::size_t... Is>
+    struct inner<std::index_sequence<Is...>> : leaf<Is>... {
+        template <typename... Args>
+            requires(sizeof...(Args) == N) &&
+                    (std::constructible_from<T, Args> && ...)
+        constexpr inner(Args&&... args)
+            : leaf<Is>(std::forward<Args>(args))... {}
+
+        constexpr inner() = default;
+        constexpr inner(const inner&) = default;
+        constexpr inner(inner&&) noexcept = default;
+        constexpr inner& operator=(const inner&) = default;
+        constexpr inner& operator=(inner&&) noexcept = default;
+    };
+
+    /// @brief Helper. A `std::index_sequence` used to generate the `leaf`
+    /// elements.
+    constexpr static auto indices = std::make_index_sequence<N>{};
+    /// @brief The `inner` struct holds a sequence of `leaf` elements.
+    inner<std::make_index_sequence<N>> data;
+
+   public:
     /// @brief Default constructor.
     constexpr ntuple() = default;
 
@@ -25,6 +76,7 @@ struct ntuple {
     /// @brief Copy constructor.
     /// @param other The `ntuple` to copy from.
     constexpr ntuple(const ntuple&) = default;
+
     /// @brief Move constructor.
     /// @param other The `ntuple` to move from.
     constexpr ntuple(ntuple&&) noexcept(
@@ -33,6 +85,7 @@ struct ntuple {
     /// @brief Copy assignment operator.
     /// @param other The `ntuple` to copy from.
     constexpr ntuple& operator=(const ntuple&) = default;
+
     /// @brief Move assignment operator.
     /// @param other The `ntuple` to move from.
     constexpr ntuple& operator=(ntuple&&) noexcept(
@@ -43,6 +96,7 @@ struct ntuple {
 
     /// @brief Returns a reference to the `I`th element of the `ntuple`.
     /// @param I The index of the element to return.
+    /// @return A reference to the `I`th element of the `ntuple`.
     template <std::size_t I>
         requires(I < N)
     constexpr T& get() & noexcept {
@@ -51,6 +105,7 @@ struct ntuple {
 
     /// @brief Returns a const reference to the `I`th element of the `ntuple`.
     /// @param I The index of the element to return.
+    /// @return A const reference to the `I`th element of the `ntuple`.
     template <std::size_t I>
         requires(I < N)
     constexpr const T& get() const& noexcept {
@@ -59,6 +114,7 @@ struct ntuple {
 
     /// @brief Returns a reference to the `I`th element of the `ntuple`.
     /// @param I The index of the element to return.
+    /// @return A rvalue reference to the `I`th element of the `ntuple`.
     template <std::size_t I>
         requires(I < N)
     constexpr T&& get() && noexcept {
@@ -67,6 +123,7 @@ struct ntuple {
 
     /// @brief Returns a const reference to the `I`th element of the `ntuple`.
     /// @param I The index of the element to return.
+    /// @return A const rvalue reference to the `I`th element of the `ntuple`.
     template <std::size_t I>
         requires(I < N)
     constexpr const T&& get() const&& noexcept {
@@ -118,57 +175,6 @@ struct ntuple {
             return ((lhs.template get<Is>() == rhs.template get<Is>()) && ...);
         }(indices);
     }
-
-   protected:
-    /// @brief The `leaf` struct holds a single element of type `T`.
-    /// @tparam I The index of the element in the `ntuple`.
-    template <std::size_t I>
-    struct leaf {
-        [[no_unique_address]] T value;
-
-        template <typename U>
-            requires std::constructible_from<T, U>
-        constexpr leaf(U&& u) : value(std::forward<U>(u)) {}
-
-        constexpr leaf() = default;
-
-        constexpr leaf(const leaf&) = default;
-        constexpr leaf(leaf&&) noexcept(
-            std::is_nothrow_move_constructible_v<T>) = default;
-        constexpr leaf& operator=(const leaf&) = default;
-        constexpr leaf& operator=(leaf&&) noexcept(
-            std::is_nothrow_move_assignable_v<T>) = default;
-    };
-
-    /// @brief The `inner` struct holds a sequence of `leaf` elements.
-    /// @tparam Seq A `std::index_sequence` type used to generate the `leaf`
-    /// elements.
-    /// @note Inheritance from `leaf` for each element makes it basically a
-    /// struct where each field can be accessed via casting to `leaf` and
-    /// accessing `value`.
-    template <typename Seq>
-    struct inner;
-    template <std::size_t... Is>
-    struct inner<std::index_sequence<Is...>> : leaf<Is>... {
-        template <typename... Args>
-            requires(sizeof...(Args) == N) &&
-                    (std::constructible_from<T, Args> && ...)
-        constexpr inner(Args&&... args)
-            : leaf<Is>(std::forward<Args>(args))... {}
-
-        constexpr inner() = default;
-        constexpr inner(const inner&) = default;
-        constexpr inner(inner&&) noexcept = default;
-        constexpr inner& operator=(const inner&) = default;
-        constexpr inner& operator=(inner&&) noexcept = default;
-    };
-
-   private:
-    /// @brief Helper. A `std::index_sequence` used to generate the `leaf`
-    /// elements.
-    constexpr static auto indices = std::make_index_sequence<N>{};
-    /// @brief The `inner` struct holds a sequence of `leaf` elements.
-    inner<std::make_index_sequence<N>> data;
 };
 
 /// @brief Swaps the contents of two `ntuple` objects.
@@ -185,7 +191,7 @@ void swap(ntuple<N, T>& lhs,
 /// @return A reference to the `I`th element of the `ntuple`.
 template <std::size_t I, std::size_t N, typename T>
     requires(I < N)
-constexpr auto& get(ntuple<N, T>& t) noexcept {
+constexpr T& get(ntuple<N, T>& t) noexcept {
     return t.template get<I>();
 }
 
@@ -194,25 +200,25 @@ constexpr auto& get(ntuple<N, T>& t) noexcept {
 /// @return A const reference to the `I`th element of the `ntuple`.
 template <std::size_t I, std::size_t N, typename T>
     requires(I < N)
-constexpr const auto& get(const ntuple<N, T>& t) noexcept {
+constexpr const T& get(const ntuple<N, T>& t) noexcept {
     return t.template get<I>();
 }
 
 /// @brief Returns a reference to the `I`th element of the `ntuple`.
 /// @param t The `ntuple` object to get the element from.
-/// @return A reference to the `I`th element of the `ntuple`.
+/// @return A rvalue reference to the `I`th element of the `ntuple`.
 template <std::size_t I, std::size_t N, typename T>
     requires(I < N)
-constexpr auto&& get(ntuple<N, T>&& t) noexcept {
+constexpr T&& get(ntuple<N, T>&& t) noexcept {
     return t.template get<I>();
 }
 
 /// @brief Returns a const reference to the `I`th element of the `ntuple`.
 /// @param t The `ntuple` object to get the element from.
-/// @return A const reference to the `I`th element of the `ntuple`.
+/// @return A const rvalue reference to the `I`th element of the `ntuple`.
 template <std::size_t I, std::size_t N, typename T>
     requires(I < N)
-constexpr const auto&& get(const ntuple<N, T>&& t) noexcept {
+constexpr const T&& get(const ntuple<N, T>&& t) noexcept {
     return t.template get<I>();
 }
 }  // namespace abl

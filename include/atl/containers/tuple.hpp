@@ -11,117 +11,7 @@ namespace abl {
 /// @brief A tuple of types `Ts...`.
 template <typename... Ts>
 struct tuple {
-    /// @brief Default constructor.
-    constexpr tuple() = default;
-
-    /// @brief Constructs a `abl::tuple` from `args...`.
-    template <typename... Args>
-        requires(sizeof...(Args) == sizeof...(Ts)) &&
-                (std::constructible_from<Ts, Args> && ...)
-    constexpr tuple(Args&&... args) : data(std::forward<Args>(args)...) {}
-
-    /// @brief Copy constructor.
-    /// @param other The `abl::tuple` to copy from.
-    constexpr tuple(const tuple&) = default;
-    /// @brief Move constructor.
-    /// @param other The `abl::tuple` to move from.
-    constexpr tuple(tuple&&) noexcept(
-        (std::is_nothrow_move_constructible_v<Ts> && ...)) = default;
-
-    /// @brief Copy assignment operator.
-    /// @param other The `abl::tuple` to copy from.
-    constexpr tuple& operator=(const tuple&) = default;
-    /// @brief Move assignment operator.
-    /// @param other The `abl::tuple` to move from.
-    constexpr tuple& operator=(tuple&&) noexcept(
-        (std::is_nothrow_move_assignable_v<Ts> && ...)) = default;
-
-    /// @brief Returns the size of the `abl::tuple`.
-    constexpr static auto size = sizeof...(Ts);
-
-    /// @brief Returns a reference to the `I`th element of the `abl::tuple`.
-    template <std::size_t I>
-        requires(I < sizeof...(Ts))
-    constexpr auto& get() & noexcept {
-        return static_cast<leaf<I, type_at<I, Ts...>>&>(this->data).value;
-    }
-
-    /// @brief Returns a const reference to the `I`th element of the
-    /// `abl::tuple`.
-    template <std::size_t I>
-        requires(I < sizeof...(Ts))
-    constexpr const auto& get() const& noexcept {
-        return static_cast<const leaf<I, type_at<I, Ts...>>&>(this->data).value;
-    }
-
-    /// @brief Returns a reference to the `I`th element of the `abl::tuple`.
-    template <std::size_t I>
-        requires(I < sizeof...(Ts))
-    constexpr auto&& get() && noexcept {
-        return std::move(
-            static_cast<leaf<I, type_at<I, Ts...>>&>(this->data).value);
-    }
-
-    /// @brief Returns a const reference to the `I`th element of the
-    /// `abl::tuple`.
-    template <std::size_t I>
-        requires(I < sizeof...(Ts))
-    constexpr const auto&& get() const&& noexcept {
-        return std::move(
-            static_cast<const leaf<I, type_at<I, Ts...>>&>(this->data).value);
-    }
-
-    /// @brief Swaps the contents of this `abl::tuple` with another
-    /// `abl::tuple`.
-    /// @param other The `abl::tuple` to swap with.
-    constexpr void swap(tuple& other) noexcept(
-        (std::is_nothrow_swappable_v<Ts> && ...)) {
-        [&, this]<std::size_t... Is>(std::index_sequence<Is...>) {
-            using std::swap;
-            (swap(this->template get<Is>(), other.template get<Is>()), ...);
-        }(indices);
-    }
-
-    /// @brief Compares two `abl::tuple`s with a three-way comparison operator.
-    /// @param lhs The left-hand side `abl::tuple` to compare.
-    /// @param rhs The right-hand side `abl::tuple` to compare.
-    /// @returns An instance of comparison category.
-    friend constexpr auto operator<=>(
-        const tuple& lhs,
-        const tuple& rhs) noexcept((noexcept(std::declval<const Ts&>() <=>
-                                             std::declval<const Ts&>()) &&
-                                    ...))
-        -> std::common_comparison_category_t<
-            decltype(std::declval<const Ts&>() <=>
-                     std::declval<const Ts&>())...> {
-        return [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            using ordering_type = std::common_comparison_category_t<
-                decltype(std::declval<const Ts&>() <=>
-                         std::declval<const Ts&>())...>;
-            ordering_type res = ordering_type::equal;
-            (void)((res == ordering_type::equal &&
-                    (res = lhs.template get<Is>() <=> rhs.template get<Is>()) !=
-                        ordering_type::equal) ||
-                   ...);
-            return std::move(res);
-        }(indices);
-    }
-
-    /// @brief Compares two `abl::tuple`s for equality.
-    /// @param lhs The left-hand side `abl::tuple` to compare.
-    /// @param rhs The right-hand side `abl::tuple` to compare.
-    /// @returns `true` if the `abl::tuple`s are equal, `false` otherwise.
-    friend constexpr bool operator==(
-        const tuple& lhs,
-        const tuple& rhs) noexcept((noexcept(std::declval<const Ts&>() ==
-                                             std::declval<const Ts&>()) &&
-                                    ...)) {
-        return [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            return ((lhs.template get<Is>() == rhs.template get<Is>()) && ...);
-        }(indices);
-    }
-
-   protected:
+   private:
     /// @brief The data of the `abl::tuple`.
     /// @tparam I The index of the element.
     /// @tparam T The type of the element.
@@ -181,13 +71,134 @@ struct tuple {
     template <std::size_t I, typename... Types>
     using type_at = typename type_at_impl<I, Types...>::type;
 
-   private:
     /// @brief Helper. The number of elements in the `abl::tuple`.
     constexpr static auto N = sizeof...(Ts);
     /// @brief Helper. The index sequence of the elements.
     constexpr static auto indices = std::make_index_sequence<N>{};
     /// @brief The inner storage of the `abl::tuple`.
     inner<std::make_index_sequence<N>> data;
+
+   public:
+    /// @brief Default constructor.
+    constexpr tuple() = default;
+
+    /// @brief Constructs a `abl::tuple` from `args...`.
+    template <typename... Args>
+        requires(sizeof...(Args) == sizeof...(Ts)) &&
+                (std::constructible_from<Ts, Args> && ...)
+    constexpr tuple(Args&&... args) : data(std::forward<Args>(args)...) {}
+
+    /// @brief Copy constructor.
+    /// @param other The `abl::tuple` to copy from.
+    constexpr tuple(const tuple&) = default;
+
+    /// @brief Move constructor.
+    /// @param other The `abl::tuple` to move from.
+    constexpr tuple(tuple&&) noexcept(
+        (std::is_nothrow_move_constructible_v<Ts> && ...)) = default;
+
+    /// @brief Copy assignment operator.
+    /// @param other The `abl::tuple` to copy from.
+    constexpr tuple& operator=(const tuple&) = default;
+
+    /// @brief Move assignment operator.
+    /// @param other The `abl::tuple` to move from.
+    constexpr tuple& operator=(tuple&&) noexcept(
+        (std::is_nothrow_move_assignable_v<Ts> && ...)) = default;
+
+    /// @brief Returns the size of the `abl::tuple`.
+    constexpr static auto size = sizeof...(Ts);
+
+    /// @brief Returns a reference to the `I`th element of the `abl::tuple`.
+    /// @tparam I The index of the element to get.
+    /// @return A reference to the `I`th element of the `abl::tuple`.
+    template <std::size_t I>
+        requires(I < sizeof...(Ts))
+    constexpr type_at<I, Ts...>& get() & noexcept {
+        return static_cast<leaf<I, type_at<I, Ts...>>&>(this->data).value;
+    }
+
+    /// @brief Returns a const reference to the `I`th element of the
+    /// `abl::tuple`.
+    /// @tparam I The index of the element to get.
+    /// @return A const reference to the `I`th element of the `abl::tuple`.
+    template <std::size_t I>
+        requires(I < sizeof...(Ts))
+    constexpr const type_at<I, Ts...>& get() const& noexcept {
+        return static_cast<const leaf<I, type_at<I, Ts...>>&>(this->data).value;
+    }
+
+    /// @brief Returns a reference to the `I`th element of the `abl::tuple`.
+    /// @tparam I The index of the element to get.
+    /// @return A rvalue reference to the `I`th element of the `abl::tuple`.
+    template <std::size_t I>
+        requires(I < sizeof...(Ts))
+    constexpr type_at<I, Ts...>&& get() && noexcept {
+        return std::move(
+            static_cast<leaf<I, type_at<I, Ts...>>&>(this->data).value);
+    }
+
+    /// @brief Returns a const reference to the `I`th element of the
+    /// `abl::tuple`.
+    /// @tparam I The index of the element to get.
+    /// @return A const rvalue reference to the `I`th element of the
+    /// `abl::tuple`.
+    template <std::size_t I>
+        requires(I < sizeof...(Ts))
+    constexpr const type_at<I, Ts...>&& get() const&& noexcept {
+        return std::move(
+            static_cast<const leaf<I, type_at<I, Ts...>>&>(this->data).value);
+    }
+
+    /// @brief Swaps the contents of this `abl::tuple` with another
+    /// `abl::tuple`.
+    /// @param other The `abl::tuple` to swap with.
+    constexpr void swap(tuple& other) noexcept(
+        (std::is_nothrow_swappable_v<Ts> && ...)) {
+        [&, this]<std::size_t... Is>(std::index_sequence<Is...>) {
+            using std::swap;
+            (swap(this->template get<Is>(), other.template get<Is>()), ...);
+        }(indices);
+    }
+
+    /// @brief Compares two `abl::tuple`s with a three-way comparison operator.
+    /// @param lhs The left-hand side `abl::tuple` to compare.
+    /// @param rhs The right-hand side `abl::tuple` to compare.
+    /// @returns An instance of comparison category.
+    friend constexpr auto operator<=>(
+        const tuple& lhs,
+        const tuple& rhs) noexcept((noexcept(std::declval<const Ts&>() <=>
+                                             std::declval<const Ts&>()) &&
+                                    ...))
+        -> std::common_comparison_category_t<
+            decltype(std::declval<const Ts&>() <=>
+                     std::declval<const Ts&>())...> {
+        return [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            using ordering_type = std::common_comparison_category_t<
+                decltype(std::declval<const Ts&>() <=>
+                         std::declval<const Ts&>())...>;
+            ordering_type res = ordering_type::equal;
+            (void)((res == ordering_type::equal &&
+                    (res = lhs.template get<Is>() <=> rhs.template get<Is>()) !=
+                        ordering_type::equal) ||
+                   ...);
+            return std::move(res);
+        }(indices);
+    }
+
+    /// @brief Compares two `abl::tuple`s for equality.
+    /// @param lhs The left-hand side `abl::tuple` to compare.
+    /// @param rhs The right-hand side `abl::tuple` to compare.
+    /// @returns `true` if the `abl::tuple`s are equal, `false` otherwise.
+    friend constexpr bool operator==(
+        const tuple& lhs,
+        const tuple& rhs) noexcept((noexcept(std::declval<const Ts&>() ==
+                                             std::declval<const Ts&>()) &&
+                                    ...)) {
+        return [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            return ((lhs.template get<Is>() == rhs.template get<Is>()) && ...);
+        }(indices);
+    }
 };
 
 /// @brief Swaps two `abl::tuple`s.
@@ -200,15 +211,18 @@ void swap(tuple<Ts...>& lhs,
 /// @brief Returns a reference to the element at index `I` in the `abl::tuple`.
 /// @tparam I The index of the element to return.
 /// @param t The `abl::tuple` to return the element from.
+/// @return A reference to the `I`th element of the `abl::tuple`.
 template <std::size_t I, typename... Ts>
     requires(I < sizeof...(Ts))
 constexpr auto& get(tuple<Ts...>& t) noexcept {
     return t.template get<I>();
 }
 
-/// @brief Returns a const reference to the element at index `I` in the `abl::tuple`.
+/// @brief Returns a const reference to the element at index `I` in the
+/// `abl::tuple`.
 /// @tparam I The index of the element to return.
 /// @param t The `abl::tuple` to return the element from.
+/// @return A const reference to the `I`th element of the `abl::tuple`.
 template <std::size_t I, typename... Ts>
     requires(I < sizeof...(Ts))
 constexpr const auto& get(const tuple<Ts...>& t) noexcept {
@@ -218,15 +232,18 @@ constexpr const auto& get(const tuple<Ts...>& t) noexcept {
 /// @brief Returns a reference to the element at index `I` in the `abl::tuple`.
 /// @tparam I The index of the element to return.
 /// @param t The `abl::tuple` to return the element from.
+/// @return A rvalue reference to the `I`th element of the `abl::tuple`.
 template <std::size_t I, typename... Ts>
     requires(I < sizeof...(Ts))
 constexpr auto&& get(tuple<Ts...>&& t) noexcept {
     return t.template get<I>();
 }
 
-/// @brief Returns a const reference to the element at index `I` in the `abl::tuple`.
+/// @brief Returns a const reference to the element at index `I` in the
+/// `abl::tuple`.
 /// @tparam I The index of the element to return.
 /// @param t The `abl::tuple` to return the element from.
+/// @return A const rvalue reference to the `I`th element of the `abl::tuple`.
 template <std::size_t I, typename... Ts>
     requires(I < sizeof...(Ts))
 constexpr const auto&& get(const tuple<Ts...>&& t) noexcept {
