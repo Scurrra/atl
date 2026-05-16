@@ -297,6 +297,35 @@ struct variant {
         }
     }
 
+    /// @brief Assignment operator for a value of type `T`.
+    /// @param data The value to assign.
+    template <typename T>
+        requires contains<T, Ts...>
+    variant& operator=(const T& data) noexcept(
+        std::is_nothrow_copy_constructible_v<T> &&
+        (std::is_nothrow_destructible_v<Ts> && ...)) {
+        this->destroy();
+        constexpr auto I = index_of<T, Ts...>;
+        std::construct_at(&storage_dispatcher<I, T>::access(this->data), data);
+        this->indx = I;
+        return *this;
+    }
+
+    /// @brief Assignment operator for a value of type `T` using move semantics.
+    /// @param data The value to assign.
+    template <typename T>
+        requires contains<T, Ts...>
+    variant& operator=(T&& data) noexcept(
+        std::is_nothrow_move_constructible_v<T> &&
+        (std::is_nothrow_destructible_v<Ts> && ...)) {
+        this->destroy();
+        constexpr auto I = index_of<T, Ts...>;
+        std::construct_at(&storage_dispatcher<I, T>::access(this->data),
+                          std::move(data));
+        this->indx = I;
+        return *this;
+    }
+
     /// @brief Copy assignment operator.
     /// @param other The `variant` to copy from.
     variant& operator=(const variant& other) noexcept(
