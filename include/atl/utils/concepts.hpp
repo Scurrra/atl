@@ -8,8 +8,8 @@
 namespace abl {
 
 /// @brief Constrains a type pack to contain only one distinct type.
-template <typename T, typename... Ts>
-concept all_same = (std::is_same_v<T, Ts> && ...);
+template <typename... Ts>
+concept all_same = are_same<Ts...>::value;
 
 /// @brief Constrains a type pack to have no duplicates.
 template <typename... Ts>

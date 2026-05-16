@@ -25,6 +25,25 @@ struct static_max<N1, N2, Ns...> {
 template <std::size_t... Ns>
 inline constexpr std::size_t static_max_v = static_max<Ns...>::value;
 
+/// @brief Compile-time minimum of `std::size_t` values.
+template <std::size_t... Ns>
+struct static_min {
+    static constexpr std::size_t value = 0;
+};
+template <std::size_t N>
+struct static_min<N> {
+    static constexpr std::size_t value = N;
+};
+template <std::size_t N1, std::size_t N2, std::size_t... Ns>
+struct static_min<N1, N2, Ns...> {
+    static constexpr std::size_t value =
+        static_min<(N1 < N2 ? N1 : N2), Ns...>::value;
+};
+
+/// @brief Helper variable for `static_min`.
+template <std::size_t... Ns>
+inline constexpr std::size_t static_min_v = static_min<Ns...>::value;
+
 /// @brief Checks if all types are the same.
 template <typename... Ts>
 struct are_same;
