@@ -5,7 +5,7 @@
 #include <type_traits>  // std::common_type, std::is_convertible, std::is_nothrow_convertible
 #include <utility>  // std::pair
 
-namespace atl {
+namespace abl {
 
 /// @brief Returns the minimum of two values.
 /// @param a The first value.
@@ -184,6 +184,6 @@ minmax(const T& a, const U& b, Compare comp) noexcept(
     return {cb, ca};
 }
 
-}  // namespace atl
+}  // namespace abl
 
 #endif

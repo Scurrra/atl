@@ -4,7 +4,7 @@
 #include <cstddef>      //std::size_t
 #include <type_traits>  // std::is_same
 
-namespace atl {
+namespace abl {
 
 /// @brief Compile-time maximum of `std::size_t` values.
 template <std::size_t... Ns>
@@ -71,6 +71,6 @@ struct contains_type {
 template <typename T, typename... Ts>
 inline constexpr bool contains_type_v = contains_type<T, Ts...>::value;
 
-}  // namespace atl
+}  // namespace abl
 
 #endif  // ATL_TYPE_TRAITS_HPP

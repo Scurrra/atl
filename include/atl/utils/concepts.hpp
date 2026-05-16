@@ -5,7 +5,7 @@
 
 #include "type_traits.hpp"
 
-namespace atl {
+namespace abl {
 
 /// @brief Constrains a type pack to contain only one distinct type.
 template <typename T, typename... Ts>
