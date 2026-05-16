@@ -9,7 +9,7 @@
 
 #include "../utils/concepts.hpp"  // reimports <concepts> and <type_traits>
 
-namespace atl {
+namespace abl {
 
 /// @brief Exception thrown when attempting to get a wrong alternative value of
 /// `abl::variant`.
@@ -27,6 +27,14 @@ template <typename... Ts>
     requires all_unique<Ts...>
 struct variant {
    private:
+    /// @brief Friend declaration for the `variant` template with a different
+    /// type pack.
+    /// @note This is used to give access to the private members of another
+    /// `variant` instance.
+    template <typename... Us>
+        requires all_unique<Us...>
+    friend struct variant;
+
     /// @brief The storage recursive union for the variant.
     template <typename... Types>
     union storage;
@@ -47,6 +55,14 @@ struct variant {
     struct storage_dispatcher {
         template <typename Storage>
         static constexpr T& access(Storage& s) {
+            if constexpr (I == 0) {
+                return *std::launder(&s.value);
+            } else {
+                return storage_dispatcher<I - 1, T>::access(s.rest);
+            }
+        }
+        template <typename Storage>
+        static constexpr const T& access(const Storage& s) {
             if constexpr (I == 0) {
                 return *std::launder(&s.value);
             } else {
@@ -183,12 +199,13 @@ struct variant {
             this->indx = It;  // index_of<T, Ts...>;
         };
 
-        auto dispatch = [this, &copy_construct](std::size_t ind,
-                                                const variant<Us...>& other) {
-            [this, &ind,
-             &other]<std::size_t... Iu>(std::index_sequence<Iu...>) {
+        auto dispatch = [&copy_construct](std::size_t ind,
+                                          const variant<Us...>& other) {
+            [&ind, &other,
+             &copy_construct]<std::size_t... Iu>(std::index_sequence<Iu...>) {
                 ((ind == Iu
-                      ? copy_construct<index_of<type_at<Iu, Us...>, Ts...>, Iu>(
+                      ? copy_construct.template
+                        operator()<index_of<type_at<Iu, Us...>, Ts...>, Iu>(
                             other)
                       : void()),
                  ...);
@@ -219,13 +236,14 @@ struct variant {
                 other.destroy();
             };
 
-        auto dispatch = [this, &move_construct](std::size_t ind,
-                                                variant<Us...>&& other) {
-            [this, &ind,
-             &other]<std::size_t... Iu>(std::index_sequence<Iu...>) {
+        auto dispatch = [&move_construct](std::size_t ind,
+                                          variant<Us...>&& other) {
+            [&ind, &other,
+             &move_construct]<std::size_t... Iu>(std::index_sequence<Iu...>) {
                 ((ind == Iu
-                      ? move_construct<index_of<type_at<Iu, Us...>, Ts...>, Iu>(
-                            other)
+                      ? move_construct.template
+                        operator()<index_of<type_at<Iu, Us...>, Ts...>, Iu>(
+                            std::move(other))
                       : void()),
                  ...);
             }(std::make_index_sequence<sizeof...(Us)>{});
@@ -257,12 +275,13 @@ struct variant {
             this->indx = It;  // index_of<T, Ts...>;
         };
 
-        auto dispatch = [this, &copy_construct](std::size_t ind,
-                                                const variant<Us...>& other) {
-            [this, &ind,
-             &other]<std::size_t... Iu>(std::index_sequence<Iu...>) {
+        auto dispatch = [&copy_construct](std::size_t ind,
+                                          const variant<Us...>& other) {
+            [&ind, &other,
+             &copy_construct]<std::size_t... Iu>(std::index_sequence<Iu...>) {
                 ((ind == Iu
-                      ? copy_construct<index_of<type_at<Iu, Us...>, Ts...>, Iu>(
+                      ? copy_construct.template
+                        operator()<index_of<type_at<Iu, Us...>, Ts...>, Iu>(
                             other)
                       : void()),
                  ...);
@@ -300,12 +319,13 @@ struct variant {
                 other.destroy();
             };
 
-        auto dispatch = [this, &move_construct](std::size_t ind,
-                                                variant<Us...>&& other) {
-            [this, &ind,
-             &other]<std::size_t... Iu>(std::index_sequence<Iu...>) {
+        auto dispatch = [&move_construct](std::size_t ind,
+                                          variant<Us...>&& other) {
+            [&ind, &other,
+             &move_construct]<std::size_t... Iu>(std::index_sequence<Iu...>) {
                 ((ind == Iu
-                      ? move_construct<index_of<type_at<Iu, Us...>, Ts...>, Iu>(
+                      ? move_construct.template
+                        operator()<index_of<type_at<Iu, Us...>, Ts...>, Iu>(
                             other)
                       : void()),
                  ...);
@@ -568,6 +588,6 @@ void swap(variant<Types...>& lhs,
           variant<Types...>& rhs) noexcept(noexcept(lhs.swap(rhs))) {
     lhs.swap(rhs);
 }
-}  // namespace atl
+}  // namespace abl
 
 #endif  // ATL_VARIANT_HPP
