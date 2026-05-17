@@ -7,10 +7,10 @@ weight: 3
 
 ## Coverage progress
 - [ ] Data Structures
-  - [ ] ADTs
+  - [x] ADTs
     - [x] Option
     - [x] Variant
-    - [ ] Tuple
+    - [x] Tuple
   - [ ] Sequential Containers
     - [ ] Array
     - [ ] Vector
