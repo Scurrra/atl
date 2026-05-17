@@ -9,7 +9,7 @@ weight: 3
 - [ ] Data Structures
   - [ ] ADTs
     - [x] Option
-    - [ ] Variant
+    - [x] Variant
     - [ ] Tuple
   - [ ] Sequential Containers
     - [ ] Array
