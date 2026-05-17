@@ -19,6 +19,10 @@ cascade:
   - [ ] Geometry
   - [ ] Combinatorics
 - [ ] Data Structures
+  - [x] ADTs
+    - [x] Option
+    - [x] Variant
+    - [x] Tuple
   - [ ] Sequential Containers
     - [ ] Array
     - [ ] Vector
